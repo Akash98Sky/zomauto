@@ -1,0 +1,36 @@
+{
+    "location": {
+        "search": "9 sai nilayam",
+        "match": [
+            {
+                "field": "line1",
+                "value": "#9"
+            },
+            {
+                "field": "line2",
+                "value": "sai nilayam"
+            },
+            {
+                "field": "line2",
+                "value": "Laxminarayana Layout"
+            }
+        ]
+    },
+    "item": {
+        "search": "biryani",
+        "match": [
+            {
+                "field": "name",
+                "value": "biryani"
+            },
+            {
+                "field": "name",
+                "value": "delivery"
+            },
+            {
+                "field": "type",
+                "value": "dish"
+            }
+        ]
+    }
+}
