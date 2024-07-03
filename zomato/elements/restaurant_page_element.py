@@ -59,34 +59,36 @@ class RestaurantPageElement(BaseElement):
                         # close modal
                         offer_modal.find_element(by=By.XPATH, value="section[1]/i").click()
     
-    async def _find_items_by_category(self, category: str) -> list[RestaurantItem]:
+    async def _find_items_by_category(self, category: str, name_contains: str = '') -> list[RestaurantItem]:
         begin = time.time()
         implicit_wait = self.driver.timeouts.implicit_wait
         # Set implicit wait to 0 seconds
         self.driver.implicitly_wait(0)
         try:
             section = self.base_element.find_element(by=By.XPATH, value="div/section[4]/section/section[2]/section[h4=\"" + category + "\"]")
-            logger.debug(f'Started scraping item category: {category}')
             return [
                 RestaurantItem(
                     item.find_element(by=By.XPATH, value="div[2]/div[1]/div/h4").text,
                     item.find_elements(by=By.XPATH, value="div[2]/div[1]/div/div[./span[contains(text(), 'vote')]]/div/i/*[name()='svg']/*[name()='title' and text()='star-fill']").__len__().__float__(),
                     item.find_element(by=By.XPATH, value="div[2]/div[1]/div/div/span[contains(text(), '₹')]").text
                 )
-                for item in section.find_elements(by=By.XPATH, value="div[2]/div/div/div")
+                for item in section.find_elements(by=By.XPATH, value=f"div[2]/div/div/div[contains(translate(., '{name_contains.upper()}', '{name_contains.lower()}'), '{name_contains.lower()}')]")
             ]
         finally:
             # Set implicit wait back to its original value
             self.driver.implicitly_wait(implicit_wait)
             end = time.time()
-            logger.debug(f'Finished scraping item category: {category} in {end - begin} seconds')
+            logger.debug(f'Scraped item category: {category} in {end - begin} seconds')
     
-    async def get_all_items(self) -> AsyncGenerator[RestaurantItemCategory, None]:
+    async def get_all_items(self, containing: str) -> AsyncGenerator[RestaurantItemCategory, None]:
         categories = self.base_element.find_elements(by=By.XPATH, value="div/section[4]/section/section[2]/section/h4")
         tasks_map: dict[str, asyncio.Task[list[RestaurantItem]]] = {}
 
         for category in categories:
-            tasks_map[category.text] = asyncio.create_task(self._find_items_by_category(category.text))
+            if not containing or containing.lower() in category.text.lower():
+                tasks_map[category.text] = asyncio.create_task(self._find_items_by_category(category.text))
+            else:
+                tasks_map[category.text] = asyncio.create_task(self._find_items_by_category(category.text, containing))
 
         for category, items_task in tasks_map.items():
             items = await items_task

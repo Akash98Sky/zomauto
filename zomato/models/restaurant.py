@@ -72,6 +72,7 @@ class RestaurantItem:
         self.name = name
         self.rating = rating
         self.price = float(price.removeprefix('₹'))
+        self.discounted_price = self.price
 
     def __str__(self) -> str:
         return self.to_dict().__str__()
@@ -80,7 +81,8 @@ class RestaurantItem:
         return {
             "name": self.name,
             "rating": self.rating,
-            "price": self.price
+            "price": self.price,
+            "discounted_price": self.discounted_price
         }
     
 class RestaurantItemCategory:

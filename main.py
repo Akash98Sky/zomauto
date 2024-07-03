@@ -5,6 +5,7 @@ from selenium.webdriver import Edge, EdgeOptions
 import json
 import asyncio
 
+from zomato.models.restaurant import RestaurantItem, RestaurantOffer
 from zomato.zomato import Zomato
 from zomato.logger import setLogLevel, setWebDriverLogLevel
 
@@ -12,12 +13,16 @@ from zomato.logger import setLogLevel, setWebDriverLogLevel
 setLogLevel(logging.DEBUG)
 setWebDriverLogLevel(logging.WARNING)
 
-HEADLESS = False
+HEADLESS = True
 config: dict[str, Any] = {}
 
 def load_config():
     with open("config.json", "r") as f:
         return json.load(f)
+    
+def discounted_price(item: RestaurantItem, offer: RestaurantOffer) -> float:
+    discount = min(item.price * offer.discount_percent / 100, offer.max_discount_amount)
+    return item.price - discount if item.price >= offer.min_order_value else item.price
 
 async def automate(browser: WebDriver):
     z = Zomato(browser)
@@ -30,12 +35,18 @@ async def automate(browser: WebDriver):
     
     json_data: list[dict[str, Any]] = []
     async for r in z.browse_restaurants():
-        r, offers, items = await z.get_restaurant_details(r)
-        
+        if not r.offers_available:
+            continue
+        r, offers, item_categories = await z.get_restaurant_details(r, config["item"]["search"])
+        for category in item_categories:
+            for item in category.items:
+                for offer in offers:
+                    item.discounted_price = min(item.discounted_price, discounted_price(item, offer))
+
         json_data.append({
             "restaurant": r.to_dict(),
             "offers": [o.to_dict() for o in offers],
-            "items": [i.to_dict() for i in items]
+            "items": [category.to_dict() for category in item_categories]
         })
     with open("restaurants.json", "w") as f:
         json.dump(json_data, f, indent=4)

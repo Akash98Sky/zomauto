@@ -63,16 +63,16 @@ class Zomato:
         with RestaurantPageElement(self.driver, restaurant) as page:
             return page.get_offers()
     
-    async def get_restaurant_details(self, restaurant: Restaurant):
+    async def get_restaurant_details(self, restaurant: Restaurant, item_contains: str = ''):
         with RestaurantPageElement(self.driver, restaurant) as page:
             offers = [offer async for offer in page.get_offers()]
-            items = [item async for item in page.get_all_items()]
+            items = [item async for item in page.get_all_items(item_contains)]
 
             return restaurant, offers, items
     
     async def get_items(self, restaurant: Restaurant, query: str) -> AsyncGenerator[RestaurantItem, None]:
         with RestaurantPageElement(self.driver, restaurant) as page:
-            async for itemcat in page.get_all_items():
+            async for itemcat in page.get_all_items(query):
                 for item in itemcat.items:
                     if query.lower() in itemcat.name.lower() or query.lower() in item.name.lower():
                         yield item
