@@ -16,7 +16,7 @@ FROM ubuntu:latest
 RUN apt-get update && \
     apt-get install -y \
         python3-pip python3-venv \
-        software-properties-common apt-transport-https wget
+        software-properties-common wget
 
 RUN wget -q https://packages.microsoft.com/keys/microsoft.asc -O- | apt-key add -
 RUN add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/edge stable main"
