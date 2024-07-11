@@ -1,0 +1,11 @@
+services:
+  # A web service that builds from a Dockerfile
+  - type: web
+    runtime: docker
+    name: zomauto
+    repo: https://github.com/Akash98Sky/zomauto.git # Default: Repo containing render.yaml
+    rootDir: . # Default: Repo root
+    dockerCommand: /app/venv/bin/fastapi app.py --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ENV
+        value: production
