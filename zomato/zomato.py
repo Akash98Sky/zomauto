@@ -15,7 +15,7 @@ logger = getLogger(__name__)
 class Zomato:
     def __init__(self, driver: WebDriver) -> None:
         self.driver = driver
-        driver.get("https://www.zomato.com/")
+        driver.get("https://www.zomato.com/bangalore/")
         driver.implicitly_wait(3)
 
     def login(self, ph_no: str):

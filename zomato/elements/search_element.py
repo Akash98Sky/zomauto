@@ -7,7 +7,7 @@ from zomato.models.location import Location
 
 class SearchElement(BaseElement):
     def __init__(self, driver: WebDriver):
-        super().__init__(driver, "//div[@id='root']//div[@class='contents-wrapper']/div[@class='searchContainer']/div")
+        super().__init__(driver, "//div[@id='root']//ul[starts-with(@id, 'navigation')]/li[1]/div/div")
 
     def locations(self, query: str):
         locSearchElement = self.base_element.find_element(by=By.XPATH, value="div[1]")
