@@ -3,7 +3,9 @@ services:
   - type: web
     runtime: docker
     name: zomauto
-    repo: https://github.com/Akash98Sky/zomauto.git # Default: Repo containing render.yaml
+    region: virginia
+    plan: free
+    repo: https://github.com/Akash98Sky/zomauto.git # Default: Repo containing render.yaml and Dockerfile
     rootDir: . # Default: Repo root
     dockerCommand: /app/venv/bin/fastapi run app.py --host 0.0.0.0 --port $PORT
     envVars:
