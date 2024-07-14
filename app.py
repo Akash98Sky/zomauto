@@ -16,8 +16,12 @@ app = FastAPI()
 
 # config browser
 browser.config(headless=True)
-app.add_event_handler("startup", browser.startup)
-app.add_event_handler("shutdown", browser.shutdown)
+@app.on_event("startup")
+async def startup():
+    await browser.startup()
+@app.on_event("shutdown")
+async def shutdown():
+    await browser.shutdown()
 
 # config CORS
 origins = [

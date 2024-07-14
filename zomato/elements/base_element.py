@@ -1,15 +1,14 @@
-from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.common.by import By
+from playwright.async_api import Page, Browser
 
 class BaseElement:
-    def __init__(self, driver: WebDriver, xpath: str | None = None) -> None:
-        self._driver = driver
+    def __init__(self, page: Page, xpath: str | None = None) -> None:
+        self._page = page
         self._xpath = xpath
 
     @property
-    def driver(self):
-        return self._driver
+    def page(self):
+        return self._page
     
     @property
     def base_element(self):
-        return self.driver.find_element(By.XPATH, self._xpath)
+        return self.page.locator(self._xpath or '').first
