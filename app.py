@@ -14,8 +14,6 @@ setWebDriverLogLevel(logging.WARNING)
 
 app = FastAPI()
 
-# config browser
-browser.config(headless=True)
 @app.on_event("startup")
 async def startup():
     await browser.startup()

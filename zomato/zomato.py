@@ -19,12 +19,14 @@ class Zomato:
         browser_type: Literal["msedge", "chrome"] = "msedge",
         browser_args: list[str] = [],
         headless: bool = False,
-        devtools: bool = False
+        devtools: bool = False,
+        user_agent: str | None = None,
     ) -> None:
         self.headless = headless
         self.devtools = devtools
         self.browser_type = browser_type
         self.browser_args = browser_args
+        self.user_agent = user_agent
 
     def browser_executable_path(self, browser_type: str) -> str | None:
         exec_path = None
@@ -51,10 +53,11 @@ class Zomato:
         self.browser = await self.playwright.chromium.launch(
             executable_path=self.browser_executable_path(browser_type=self.browser_type),
             headless=self.headless,
-            devtools=self.devtools
+            devtools=self.devtools,
+            args=self.browser_args
         )
         self.browser = await self.browser.new_context(
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.142.86 Safari/537.36",
+            user_agent=self.user_agent,
         )
         return self
     
