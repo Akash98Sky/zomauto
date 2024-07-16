@@ -11,23 +11,23 @@ import {
     TagPickerList,
     TagPickerOption
 } from "@fluentui/react-components";
-import { LocationSearch } from "../models/interfaces";
+import { ItemSearch } from "../models/interfaces";
 
-interface SearchLocationProps {
-    onChange?: (location: LocationSearch | undefined) => void;
+interface SearchItemProps {
+    onChange?: (item: ItemSearch | undefined) => void;
 }
 
-export function SearchLocations(props: SearchLocationProps) {
+export function SearchItems(props: SearchItemProps) {
     const [query, setQuery] = useState('');
-    const [data, setData] = useState<PromiseResponse<LocationSearch[]>>();
-    const [locIdx, setLocIdx] = useState<number>();
-    const locations = data?.read();
+    const [data, setData] = useState<PromiseResponse<ItemSearch[]>>();
+    const [itemIdx, setItemIdx] = useState<number>();
+    const items = data?.read();
 
     useEffect(() => {
         const getData = setTimeout(() => {
             if (!query) return;
             try {
-                setData(fetchData<LocationSearch[]>(`/api/locations?q=${query}`));
+                setData(fetchData<ItemSearch[]>(`/api/items?q=${query}`));
             } catch (e) {
                 console.log(e);
             }
@@ -37,56 +37,56 @@ export function SearchLocations(props: SearchLocationProps) {
     }, [setData, query]);
 
     // render this location list in bullet points
-    return <Field label="Search Location" style={{ maxWidth: 400 }}>
+    return <Field label="Search Item" style={{ maxWidth: 400 }}>
         <TagPicker
             onOptionSelect={(_, data) => {
-                if (locIdx === parseInt(data.value)) {
-                    setLocIdx(undefined);
+                if (itemIdx === parseInt(data.value)) {
+                    setItemIdx(undefined);
                     props.onChange && props.onChange(undefined);
                 } else {
-                    setLocIdx(parseInt(data.value));
-                    props.onChange && props.onChange(locations?.[parseInt(data.value)]);
+                    setItemIdx(parseInt(data.value));
+                    props.onChange && props.onChange(items?.[parseInt(data.value)]);
                 }
             }}
-            selectedOptions={[`${locIdx}`]}
+            selectedOptions={[`${itemIdx}`]}
         >
             <TagPickerControl>
-                {locIdx !== undefined && (
+                {itemIdx !== undefined && (
                     <TagPickerGroup>
                         <Tag
-                            key={locIdx}
+                            key={itemIdx}
                             shape="rounded"
                             media={
-                                <Avatar aria-hidden name={locations![locIdx].line1} color="colorful" />
+                                <Avatar aria-hidden name={items![itemIdx].name} color="colorful" />
                             }
-                            value={locIdx.toString()}
+                            value={itemIdx.toString()}
                         >
-                            {locations![locIdx].line1}
+                            {items![itemIdx].name}
                         </Tag>
                     </TagPickerGroup>
                 )}
 
-                <TagPickerInput aria-label="Search Location" onChange={(e) => setQuery(e.target.value)} />
+                <TagPickerInput aria-label="Search Item" onChange={(e) => setQuery(e.target.value)} />
             </TagPickerControl>
             <TagPickerList>
                 {
-                    locations
-                        ?.map((loc, idx) => (
+                    items
+                        ?.map((item, idx) => (
                             <TagPickerOption
                                 media={
                                     <Avatar
                                         shape="square"
                                         aria-hidden
-                                        name={loc.line1}
+                                        name={item.name}
                                         color="colorful"
                                     />
                                 }
                                 value={idx.toString()}
                                 key={idx}
                             >
-                                {loc.line1 + " - " + loc.line2}
+                                {item.name}
                             </TagPickerOption>
-                        )).filter((_, idx) => locIdx !== idx)
+                        )).filter((_, idx) => itemIdx !== idx)
                 }
             </TagPickerList>
         </TagPicker>

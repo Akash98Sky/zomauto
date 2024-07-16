@@ -31,8 +31,27 @@ function wrapPromise<T>(promise: Promise<T>) {
     return { read } as PromiseResponse<T>
 }
 
-function fetchData<T>(url: string) {
-    const promise = fetch(url)
+function fetchData<T>(url: string, options?: RequestInit) {
+    if (process.env.REACT_APP_BACKEND_URL) {
+        url = process.env.REACT_APP_BACKEND_URL + url;
+    }
+    const promise = fetch(url, options)
+        .then((res) => res.json())
+
+    return wrapPromise<T>(promise)
+}
+
+export function postData<T>(url: string, body?: { [key: string]: any }) {
+    if (process.env.REACT_APP_BACKEND_URL) {
+        url = process.env.REACT_APP_BACKEND_URL + url;
+    }
+    const promise = fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+    })
         .then((res) => res.json())
 
     return wrapPromise<T>(promise)

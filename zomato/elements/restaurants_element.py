@@ -22,9 +22,10 @@ class RestaurantsElement(BaseElement):
         for restaurant in restaurants:
             offer_available = False
             try:
-                discount_text = await restaurant.locator("//a[1]/div[3]/p").text_content()
-                if discount_text and "OFF" in discount_text:
-                    offer_available = True
+                if await restaurant.locator("//a[1]/div[3]/p").is_visible():
+                    discount_text = await restaurant.locator("//a[1]/div[3]/p").text_content()
+                    if discount_text and "OFF" in discount_text:
+                        offer_available = True
             except Exception:
                 pass
             

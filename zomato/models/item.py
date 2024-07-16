@@ -1,6 +1,15 @@
-class Item:
+from pydantic import BaseModel
+
+class Item(BaseModel):
+    name: str
+    type: str
+    img: str | None
+    query: str
+    
     def __init__(self, name: str, type: str, img: str | None, query: str) -> None:
-        self.name = name
-        self.type = type
-        self.img = img
-        self.query = query
+        super().__init__(
+            name=name,
+            type=type,
+            img=img,
+            query=query
+        )

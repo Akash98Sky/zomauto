@@ -46,14 +46,19 @@ class RestaurantDetailsElement(BaseElement):
         begin = time.time()
         try:
             section = self.base_element.locator("//div/section[4]/section/section[2]/section[h4=\"" + category + "\"]")
+
+            items_locator = section.locator(f"//div[2]/div/div/div[./div[2]/div[1]/div/h4 and contains(translate(., '{name_contains.upper()}', '{name_contains.lower()}'), '{name_contains.lower()}')]")
+            if await items_locator.count() > 0:
+                await items_locator.last.scroll_into_view_if_needed()
             
             return [
                 RestaurantItem(
                     await item.locator("//div[2]/div[1]/div/h4").text_content() or "",
                     len(await item.locator("//div[2]/div[1]/div/div[./span[contains(text(), 'vote')]]/div/i/*[name()='svg']/*[name()='title' and text()='star-fill']").all()),
-                    await item.locator("//div[2]/div[1]/div/div/span[contains(text(), '₹')]").text_content() or "", # type: ignore
+                    await item.locator("//div[2]/div[1]/div/div/span[contains(text(), '₹')]").text_content() or "",
+                    await item.locator("//div[1]/div[1]/img").get_attribute("src") if await item.locator("//div[1]/div[1]/img").count() > 0 else None,
                 )
-                for item in await section.locator(f"//div[2]/div/div/div[./div[2]/div[1]/div/h4 and contains(translate(., '{name_contains.upper()}', '{name_contains.lower()}'), '{name_contains.lower()}')]").all()
+                for item in await items_locator.all()
             ]
         finally:
             end = time.time()

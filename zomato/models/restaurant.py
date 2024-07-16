@@ -68,11 +68,12 @@ class RestaurantOffer:
         }
 
 class RestaurantItem:
-    def __init__(self, name: str, rating: float, price: str) -> None:
+    def __init__(self, name: str, rating: float, price: str, img: str | None = None) -> None:
         self.name = name
         self.rating = rating
         self.price = float(price.removeprefix('₹'))
         self.discounted_price = self.price
+        self.img = img
 
     def __str__(self) -> str:
         return self.to_dict().__str__()
@@ -82,7 +83,8 @@ class RestaurantItem:
             "name": self.name,
             "rating": self.rating,
             "price": self.price,
-            "discounted_price": self.discounted_price
+            "discounted_price": self.discounted_price,
+            "img": self.img
         }
     
 class RestaurantItemCategory:

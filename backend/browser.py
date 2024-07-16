@@ -4,7 +4,7 @@ from backend.logger import getLogger
 from zomato.zomato import Zomato
 
 HEADLESS = False
-DEVTOOLS = True
+DEVTOOLS = False
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.142.86 Safari/537.36"
 BROWSER_ARGS: list[str] = []
 env = getenv("ENV")
