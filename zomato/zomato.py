@@ -41,7 +41,10 @@ class Zomato:
                 elif path.exists("C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"):
                     exec_path = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
         else:
-            exec_path = shutil.which(f"{browser_type}")
+            if browser_type == "msedge":
+                exec_path = shutil.which("microsoft-edge-stable")
+            elif browser_type == "chrome":
+                exec_path = shutil.which("google-chrome")
 
         if not exec_path:
             raise Exception(f"Could not find {browser_type} executable path")
