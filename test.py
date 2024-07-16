@@ -12,6 +12,7 @@ setLogLevel(logging.DEBUG)
 setWebDriverLogLevel(logging.WARNING)
 
 HEADLESS = True
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36"
 config: dict[str, Any] = {}
 
 def load_config():
@@ -24,7 +25,7 @@ def discounted_price(item: RestaurantItem, offer: RestaurantOffer) -> float:
 
 async def automate(args: list[str]) -> None:
     # browser = await playwright.chromium.launch(executable_path="C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe", headless=HEADLESS)
-    async with Zomato(headless=HEADLESS, browser_args=args) as z:
+    async with Zomato(headless=HEADLESS, browser_args=args, user_agent=USER_AGENT) as z:
         location_matchers = config["location"]["match"]
         item_matchers = config["item"]["match"]
         
@@ -59,12 +60,14 @@ async def automate(args: list[str]) -> None:
 if __name__ == "__main__":
     config = load_config()
     browser_args = [
-        "--guest",
+        '--guest',
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-gl-drawing-for-tests',
+        '--disable-extensions',
+        '--disable-component-extensions-with-background-pages',
+        '--no-first-run',
+        '--ash-no-nudges'
     ]
-
-    if HEADLESS:
-        browser_args.append("--headless")
-        browser_args.append(
-            "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36")
     
     asyncio.run(automate(browser_args))
