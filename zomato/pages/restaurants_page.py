@@ -15,5 +15,5 @@ class RestaurantsPage(BasePage):
         self.restaurants = RestaurantsElement(self.page)
         return self
 
-    def browse_restaurants(self, load_atleast: int = 50) -> AsyncGenerator[Restaurant, None]:
+    def browse_restaurants(self, load_atleast: int = 20) -> AsyncGenerator[Restaurant, None]:
         return self.restaurants.browse_restaurants(load_atleast)

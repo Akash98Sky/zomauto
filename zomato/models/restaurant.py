@@ -76,7 +76,7 @@ class RestaurantItem(BaseModel):
 
     def __init__(self, name: str, rating: float, price: str, img: str | None = None) -> None:
         try:
-            fprice = float(price)
+            fprice = float(price.removeprefix('₹'))
         except ValueError:
             fprice = 0.0
         super().__init__(

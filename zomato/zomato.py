@@ -6,7 +6,7 @@ import shutil
 
 from zomato.models.item import Item
 from zomato.models.location import Location
-from zomato.models.restaurant import Restaurant, RestaurantDetails, RestaurantItem
+from zomato.models.restaurant import Restaurant, RestaurantDetails, RestaurantItem, RestaurantOffer
 from zomato.logger import getLogger
 from zomato.pages.home_page import HomePage
 from zomato.pages.restaurant_details_page import RestaurantDetailsPage
@@ -108,9 +108,19 @@ class Zomato:
             return restaurant_page.get_offers()
     
     async def get_restaurant_details(self, restaurant: Restaurant, item_contains: str = ''):
+        def discounted_price(item: RestaurantItem, offer: RestaurantOffer) -> float:
+            discount = min(item.price * offer.discount_percent / 100, offer.max_discount_amount)
+            return item.price - discount if item.price >= offer.min_order_value else item.price
+        
         async with RestaurantDetailsPage(self.browser, restaurant) as restaurant_page:
             offers = [offer async for offer in restaurant_page.get_offers()]
             items = [item async for item in restaurant_page.get_items(item_contains)]
+
+            # calculate discounted price
+            for category in items:
+                for item in category.items:
+                    if len(offers) > 0:
+                        item.discounted_price = min([discounted_price(item, offer) for offer in offers])
 
             return RestaurantDetails(restaurant, offers, items)
     

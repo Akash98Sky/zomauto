@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import fetchData, { PromiseResponse } from "../utils/fetchData";
+import React, { useState } from "react";
 import {
     Avatar,
     Field,
@@ -12,29 +11,22 @@ import {
     TagPickerOption
 } from "@fluentui/react-components";
 import { ItemSearch } from "../models/interfaces";
+import { useLazyGetItemsByNameQuery } from "../store/reducers/zomautoApi";
 
 interface SearchItemProps {
     onChange?: (item: ItemSearch | undefined) => void;
 }
 
 export function SearchItems(props: SearchItemProps) {
-    const [query, setQuery] = useState('');
-    const [data, setData] = useState<PromiseResponse<ItemSearch[]>>();
+    const [queryTimeout, setQueryTimeout] = useState(setTimeout(() => {}, 0));
     const [itemIdx, setItemIdx] = useState<number>();
-    const items = data?.read();
-
-    useEffect(() => {
-        const getData = setTimeout(() => {
-            if (!query) return;
-            try {
-                setData(fetchData<ItemSearch[]>(`/api/items?q=${query}`));
-            } catch (e) {
-                console.log(e);
-            }
-        }, 2000);
-
-        return () => clearTimeout(getData);
-    }, [setData, query]);
+    const [fetchItemsByNameQuery, { data: items }] = useLazyGetItemsByNameQuery();
+    const upateQueryTimeout = (query: string) => {
+        clearTimeout(queryTimeout);
+        setQueryTimeout(setTimeout(() => {
+            fetchItemsByNameQuery(query);
+        }, 2000));
+    }
 
     // render this location list in bullet points
     return <Field label="Search Item" style={{ maxWidth: 400 }}>
@@ -66,7 +58,7 @@ export function SearchItems(props: SearchItemProps) {
                     </TagPickerGroup>
                 )}
 
-                <TagPickerInput aria-label="Search Item" onChange={(e) => setQuery(e.target.value)} />
+                <TagPickerInput aria-label="Search Item" onChange={(e) => upateQueryTimeout(e.target.value)} />
             </TagPickerControl>
             <TagPickerList>
                 {

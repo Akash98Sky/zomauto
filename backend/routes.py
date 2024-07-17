@@ -1,9 +1,10 @@
 import logging
 from fastapi import Depends, FastAPI, HTTPException
-from fastapi_cache.decorator import cache
 
 from backend.cache import CacheManager
 from backend.models.query import Query
+from zomato.models.item import Item
+from zomato.models.location import Location
 from zomato.models.restaurant import Restaurant
 from zomato.zomato import Zomato
 from .browser import instance
@@ -13,9 +14,11 @@ api_routes = FastAPI()
 
 @api_routes.get("/locations")
 async def read_locations(q: str, zomato: Zomato = Depends(instance), cachemgr: CacheManager = Depends(lambda: CacheManager("locations"))):
+    def func():
+        return zomato.search_locations(q)
     try:
-        def func():
-            return zomato.search_locations(q)
+        if q.strip() == "":
+            return list[Location]([])
         return await cachemgr.cached(q, func)
     except Exception as e:
         logging.error(e, exc_info=True)
@@ -23,9 +26,11 @@ async def read_locations(q: str, zomato: Zomato = Depends(instance), cachemgr: C
     
 @api_routes.get("/items")
 async def read_items(q: str, zomato: Zomato = Depends(instance), cachemgr: CacheManager = Depends(lambda: CacheManager("items"))):
+    def func():
+        return zomato.search_items(q)
     try:
-        def func():
-            return zomato.search_items(q)
+        if q.strip() == "":
+            return list[Item]([])
         return await cachemgr.cached(q, func)
     except Exception as e:
         logging.error(e, exc_info=True)

@@ -29,10 +29,17 @@ class RestaurantDetailsElement(BaseElement):
                 try:
                     offer_modal = self.page.locator("//div[contains(@class, 'modalWrapper') and @aria-hidden='false']/div[starts-with(@id, 'id-')]")
                     if offer_modal:
-                        code = await offer_modal.locator("//section[2]/div[2]/div[4]/strong").text_content() or ""
+                        code_locator = offer_modal.locator("//section[2]/div[2]/div[4]/strong")
+                        code = ""
+                        if await code_locator.is_visible():
+                            code = await code_locator.text_content() or ""
 
-                        offer_line1 = await offer_modal.locator("//section[2]/div[2]/div[2]").text_content() or ""
-                        offer_line2 = await offer_modal.locator("//section[2]/div[2]/div[3]").text_content() or ""
+                        if await offer_modal.locator("//section[2]/div[2]/div[1]/img").is_visible():
+                            offer_line1 = await offer_modal.locator("//section[2]/div[2]/div[2]").text_content() or ""
+                            offer_line2 = await offer_modal.locator("//section[2]/div[2]/div[3]").text_content() or ""
+                        else:
+                            offer_line1 = await offer_modal.locator("//section[2]/div[2]/div[1]").text_content() or ""
+                            offer_line2 = await offer_modal.locator("//section[2]/div[2]/div[2]").text_content() or ""
 
                         yield RestaurantOffer(code, offer_line1, offer_line2)
                 except Exception as e:
@@ -47,15 +54,20 @@ class RestaurantDetailsElement(BaseElement):
         try:
             section = self.base_element.locator("//div/section[4]/section/section[2]/section[h4=\"" + category + "\"]")
 
-            items_locator = section.locator(f"//div[2]/div/div/div[./div[2]/div[1]/div/h4 and contains(translate(., '{name_contains.upper()}', '{name_contains.lower()}'), '{name_contains.lower()}')]")
-            if await items_locator.count() > 0:
-                await items_locator.last.scroll_into_view_if_needed()
+            try:
+                items_locator = section.locator(f"//div[2]/div/div/div[./div[2]/div[1]/div/h4 and contains(translate(., '{name_contains.upper()}', '{name_contains.lower()}'), '{name_contains.lower()}')]")
+                if await items_locator.count() > 0:
+                    await items_locator.last.scroll_into_view_if_needed()
+                    await items_locator.last.wait_for(state="visible", timeout=1000)
+            except:
+                # this is just a workaround to load all the item images
+                pass
             
             return [
                 RestaurantItem(
                     await item.locator("//div[2]/div[1]/div/h4").text_content() or "",
                     len(await item.locator("//div[2]/div[1]/div/div[./span[contains(text(), 'vote')]]/div/i/*[name()='svg']/*[name()='title' and text()='star-fill']").all()),
-                    await item.locator("//div[2]/div[1]/div/div/span[contains(text(), '₹')]").text_content() or "",
+                    await item.locator("//div[2]/div[1]/div/div/span[contains(text(), '₹')]").first.text_content() or "",
                     await item.locator("//div[1]/div[1]/img").get_attribute("src") if await item.locator("//div[1]/div[1]/img").count() > 0 else None,
                 )
                 for item in await items_locator.all()

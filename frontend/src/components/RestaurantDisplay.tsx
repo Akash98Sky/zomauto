@@ -1,9 +1,10 @@
 import React from 'react';
-import { RestaurantDetail, RestaurantItem } from '../models/interfaces';
+import { RestaurantItem, RestaurantSearchQuery } from '../models/interfaces';
 import { Text, makeStyles, Title2, Caption1, Card, CardHeader, CardPreview, tokens } from '@fluentui/react-components';
+import { useQueryRestaurantsByItemQuery } from '../store/reducers/zomautoApi';
 
 interface RestaurantDisplayProps {
-    restaurants: RestaurantDetail[];
+    query: RestaurantSearchQuery;
 }
 
 const flex = {
@@ -59,12 +60,15 @@ const useStyles = makeStyles({
 
 export default function RestaurantDisplay(props: RestaurantDisplayProps) {
     const styles = useStyles();
+    const { isLoading, isError, data: restaurants } = useQueryRestaurantsByItemQuery(props.query);
 
     return (
         <div>
             <h1>Restaurant Display</h1>
+            {isLoading && <p>Loading...</p>}
+            {isError && <p>Failed to load!</p>}
             <ul className={styles.main}>
-                {props.restaurants.map(({ restaurant, items, offers }) => (
+                {restaurants && restaurants.map(({ restaurant, items, offers }) => (
                     <li key={restaurant.name}>
                         <section className={styles.section}>
                             <Title2>{restaurant.name}</Title2>
