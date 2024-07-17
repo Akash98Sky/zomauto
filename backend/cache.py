@@ -1,19 +1,14 @@
-from os import getenv, environ
-from typing import Any, Awaitable, Callable, Sequence
-from fastapi_cache import FastAPICache
-from fastapi_cache.backends.redis import RedisBackend
+from os import getenv
+from typing import Awaitable, Callable, Sequence
 from pydantic import BaseModel
 from redis.asyncio.client import Redis
 import json
 
-REDIS_HOST = getenv("REDIS_HOST", "localhost")
-REDIS_PORT = getenv("REDIS_PORT", "6379")
-REDIS_USERNAME = getenv("REDIS_USERNAME", "default")
-REDIS_PASSWORD = getenv("REDIS_PASSWORD", "")
+REDIS_URL = getenv("REDIS_URL", "redis://localhost:6379")
 
 def init_cache():
     global redis
-    redis = Redis(host=REDIS_HOST, port=int(REDIS_PORT), ssl=True, password=REDIS_PASSWORD, username=REDIS_USERNAME)
+    redis = Redis.from_url(REDIS_URL)
 
 class CacheManager:
     def __init__(self, topic: str, namespace: str = "zomauto"):

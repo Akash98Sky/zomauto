@@ -11,26 +11,11 @@ services:
     envVars:
       - key: ENV
         value: production
-      - key: REDIS_HOST
+      - key: REDIS_URL
         fromService:
           type: redis
           name: zomauto-redis
-          property: host
-      - key: REDIS_PORT
-        fromService:
-          type: redis
-          name: zomauto-redis
-          property: port
-      - key: REDIS_PASSWORD
-        fromService:
-          type: redis
-          name: zomauto-redis
-          property: password
-      - key: REDIS_USERNAME
-        fromService:
-          type: redis
-          name: zomauto-redis
-          property: username
+          property: connectionString
 
 
   # A redis cache service
