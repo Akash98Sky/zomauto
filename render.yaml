@@ -11,3 +11,11 @@ services:
     envVars:
       - key: ENV
         value: production
+
+  # A redis cache service
+  - type: redis
+    name: zomauto-redis
+    region: virginia
+    plan: free
+    ipAllowList:
+      - source: 216.24.60.0/24
