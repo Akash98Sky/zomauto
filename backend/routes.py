@@ -1,48 +1,51 @@
 import logging
 from fastapi import Depends, FastAPI, HTTPException
-from pydantic import BaseModel
+from fastapi_cache.decorator import cache
 
-from zomato.models.item import Item
-from zomato.models.location import Location
+from backend.cache import CacheManager
+from backend.models.query import Query
+from zomato.models.restaurant import Restaurant
 from zomato.zomato import Zomato
 from .browser import instance
 
 api_routes = FastAPI()
 
-class Query(BaseModel):
-    location: Location
-    item: Item
-    at_least: int = 10
-
 
 @api_routes.get("/locations")
-async def read_locations(q: str, zomato: Zomato = Depends(instance)):
+@cache(expire=604800)   # cache for 1 week
+async def read_locations(q: str, zomato: Zomato = Depends(instance), cachemgr: CacheManager = Depends(lambda: CacheManager("locations"))):
     try:
-        return await zomato.search_locations(q)
+        def func():
+            return zomato.search_locations(q)
+        return await cachemgr.cached(q, func)
     except Exception as e:
         logging.error(e, exc_info=True)
         raise HTTPException(status_code=400)
     
 @api_routes.get("/items")
-async def read_items(q: str, zomato: Zomato = Depends(instance)):
+@cache(expire=604800)
+async def read_items(q: str, zomato: Zomato = Depends(instance), cachemgr: CacheManager = Depends(lambda: CacheManager("items"))):
     try:
-        return await zomato.search_items(q)
+        def func():
+            return zomato.search_items(q)
+        return cachemgr.cached(q, func)
     except Exception as e:
         logging.error(e, exc_info=True)
         raise HTTPException(status_code=400)
     
 @api_routes.post("/query")
-async def query(query: Query, zomato: Zomato = Depends(instance)):
+async def query(query: Query, zomato: Zomato = Depends(instance), cachemgr: CacheManager = Depends(lambda: CacheManager("restaurants"))):
     data = []
+    def func(restaurant: Restaurant):
+        def inner_func():
+            return zomato.get_restaurant_details(restaurant)
+        return inner_func
     try:
         restaurants = [restaurant async for restaurant in zomato.browse_restaurants(query.location, query.item, query.at_least)]
         for restaurant in restaurants:
-            restaurant, offers, items = await zomato.get_restaurant_details(restaurant)
-            data.append({
-                "restaurant": restaurant.to_dict(),
-                "offers": [o.to_dict() for o in offers],
-                "items": [category.to_dict() for category in items]
-            })
+            key = restaurant.href
+            details = await cachemgr.cached(key, func(restaurant), expire=28800)    # cache for 8 hours
+            data.append(details)
 
         return data
     except Exception as e:

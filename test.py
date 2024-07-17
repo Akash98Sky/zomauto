@@ -43,16 +43,16 @@ async def automate(args: list[str]) -> None:
         async for r in z.browse_restaurants(at=location, serving=item, at_least=0):
             if not r.offers_available:
                 continue
-            r, offers, item_categories = await z.get_restaurant_details(r, config["item"]["search"])
-            for category in item_categories:
+            details = await z.get_restaurant_details(r, config["item"]["search"])
+            for category in details.items:
                 for item in category.items:
-                    for offer in offers:
+                    for offer in details.offers:
                         item.discounted_price = min(item.discounted_price, discounted_price(item, offer))
 
             json_data.append({
-                "restaurant": r.to_dict(),
-                "offers": [o.to_dict() for o in offers],
-                "items": [category.to_dict() for category in item_categories]
+                "restaurant": r.dict(),
+                "offers": [o.dict() for o in details.offers],
+                "items": [category.dict() for category in details.items]
             })
         with open("restaurants.json", "w") as f:
             json.dump(json_data, f, indent=4)

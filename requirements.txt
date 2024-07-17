@@ -1,3 +1,4 @@
 asyncio
 fastapi
 playwright
+fastapi-cache2[redis]

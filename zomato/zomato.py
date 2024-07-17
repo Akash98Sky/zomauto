@@ -6,7 +6,7 @@ import shutil
 
 from zomato.models.item import Item
 from zomato.models.location import Location
-from zomato.models.restaurant import Restaurant, RestaurantItem
+from zomato.models.restaurant import Restaurant, RestaurantDetails, RestaurantItem
 from zomato.logger import getLogger
 from zomato.pages.home_page import HomePage
 from zomato.pages.restaurant_details_page import RestaurantDetailsPage
@@ -112,7 +112,7 @@ class Zomato:
             offers = [offer async for offer in restaurant_page.get_offers()]
             items = [item async for item in restaurant_page.get_items(item_contains)]
 
-            return restaurant, offers, items
+            return RestaurantDetails(restaurant, offers, items)
     
     async def get_items(self, restaurant: Restaurant, query: str) -> AsyncGenerator[RestaurantItem, None]:
         async with RestaurantDetailsPage(self.browser, restaurant) as restaurant_page:

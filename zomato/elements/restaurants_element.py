@@ -34,6 +34,6 @@ class RestaurantsElement(BaseElement):
                 await restaurant.locator("//a[2]/div[2]/p[1]").text_content() or "",
                 await restaurant.locator("//a[1]/div[2]/img").get_attribute("src"),
                 await restaurant.locator("//a[2]/div[1]/div/div/div/div/div/div[1]").text_content() or "",
-                await restaurant.locator("//a[1]").get_attribute("href"),
+                await restaurant.locator("//a[1]").get_attribute("href") or "",
                 offer_available
             )

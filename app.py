@@ -1,9 +1,10 @@
 import logging
 from typing import Any
-from fastapi import FastAPI, HTTPException, Response
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from backend.cache import init_cache
 from zomato.logger import setLogLevel, setWebDriverLogLevel
 from backend import browser, routes
 
@@ -16,6 +17,7 @@ app = FastAPI()
 
 @app.on_event("startup")
 async def startup():
+    init_cache()
     await browser.startup()
 @app.on_event("shutdown")
 async def shutdown():

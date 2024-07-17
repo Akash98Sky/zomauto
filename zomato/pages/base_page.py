@@ -1,4 +1,5 @@
 import asyncio
+from typing import Awaitable
 from playwright.async_api import Browser, BrowserContext
 
 class BasePage:

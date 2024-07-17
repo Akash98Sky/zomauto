@@ -11,11 +11,33 @@ services:
     envVars:
       - key: ENV
         value: production
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: zomauto-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: zomauto-redis
+          property: port
+      - key: REDIS_PASSWORD
+        fromService:
+          type: redis
+          name: zomauto-redis
+          property: password
+      - key: REDIS_USERNAME
+        fromService:
+          type: redis
+          name: zomauto-redis
+          property: username
+
 
   # A redis cache service
   - type: redis
     name: zomauto-redis
     region: virginia
     plan: free
+    maxmemoryPolicy: allkeys-lru
     ipAllowList:
       - source: 216.24.60.0/24
