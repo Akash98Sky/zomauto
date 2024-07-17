@@ -12,7 +12,6 @@ api_routes = FastAPI()
 
 
 @api_routes.get("/locations")
-@cache(expire=604800)   # cache for 1 week
 async def read_locations(q: str, zomato: Zomato = Depends(instance), cachemgr: CacheManager = Depends(lambda: CacheManager("locations"))):
     try:
         def func():
@@ -23,12 +22,11 @@ async def read_locations(q: str, zomato: Zomato = Depends(instance), cachemgr: C
         raise HTTPException(status_code=400)
     
 @api_routes.get("/items")
-@cache(expire=604800)
 async def read_items(q: str, zomato: Zomato = Depends(instance), cachemgr: CacheManager = Depends(lambda: CacheManager("items"))):
     try:
         def func():
             return zomato.search_items(q)
-        return cachemgr.cached(q, func)
+        return await cachemgr.cached(q, func)
     except Exception as e:
         logging.error(e, exc_info=True)
         raise HTTPException(status_code=400)
