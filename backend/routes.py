@@ -42,8 +42,11 @@ async def query(query: Query, zomato: Zomato = Depends(instance), cachemgr: Cach
         restaurants = [restaurant async for restaurant in zomato.browse_restaurants(query.location, query.item, query.at_least)]
         for restaurant in restaurants:
             key = restaurant.href
-            details = await cachemgr.cached(key, func(restaurant), expire=28800)    # cache for 8 hours
-            data.append(details)
+            try:
+                details = await cachemgr.cached(key, func(restaurant), expire=28800)    # cache for 8 hours
+                data.append(details)
+            except TimeoutError as e:
+                logging.warning('Restaurant "%s" timed out, Error: %s', restaurant.name, e, exc_info=True)
 
         return data
     except Exception as e:
