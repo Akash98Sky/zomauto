@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Button, makeStyles } from "@fluentui/react-components";
+import { Button, Input, makeStyles } from "@fluentui/react-components";
 
 import { SearchItems } from "./SearchItem";
 import { SearchLocations } from "./SearchLocations";
@@ -12,6 +12,14 @@ const useStyle = makeStyles({
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
+        gap: '10px',
+    },
+    row: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'stretch',
+        gap: '10px',
     }
 })
 
@@ -26,16 +34,13 @@ const useStyleMd = makeStyles({
 })
 
 interface RestaurantSearchProps {
-    onSearch?: (location: LocationSearch, item: ItemSearch) => void;
+    onSearch?: (location: LocationSearch, item: ItemSearch, atLeast: number) => void;
+    disableSearch?: boolean;
 }
 
 export default function RestaurantSearch(props: RestaurantSearchProps) {
-    const [fetchQueryRestaurantsByItem, { isFetching }] = useLazyQueryRestaurantsByItemQuery();
-    const onSearchCb = useCallback((location: LocationSearch, item: ItemSearch) => {
-        fetchQueryRestaurantsByItem({ location, item });
-        props.onSearch && props.onSearch(location, item);
-    }, [props, fetchQueryRestaurantsByItem]);
     const [searchData, setSearchData] = useState<{ location: LocationSearch | undefined, item: ItemSearch | undefined }>({ location: undefined, item: undefined });
+    const [atLeast, setAtLeast] = useState(10);
 
     const [width, setWidth] = useState(window.innerWidth);
     const style = useStyle();
@@ -55,12 +60,15 @@ export default function RestaurantSearch(props: RestaurantSearchProps) {
             <div className={isMd ? styleMd.searchControl : style.searchControl}>
                 <SearchLocations onChange={(location) => { setSearchData(data => ({ ...data, location })); console.log('location', location) }} />
                 <SearchItems onChange={(item) => { setSearchData(data => ({ ...data, item })); console.log('item', item) }} />
-                <Button
-                    appearance="primary"
-                    onClick={() => onSearchCb(searchData.location!, searchData.item!)}
-                    disabled={!searchData.location || !searchData.item || isFetching}>
-                    Search
-                </Button>
+                <div className={style.row}>
+                    <Input placeholder="No of restaurants to search" type='number' min={1} max={50} value={atLeast.toString()} onChange={(e) => setAtLeast(parseInt(e.target.value))} />
+                    <Button
+                        appearance="primary"
+                        onClick={() => props.onSearch && props.onSearch(searchData.location!, searchData.item!, atLeast)}
+                        disabled={props.disableSearch || !searchData.location || !searchData.item}>
+                        Search
+                    </Button>
+                </div>
             </div>
         </div>
     );

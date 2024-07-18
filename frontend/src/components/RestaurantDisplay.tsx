@@ -1,10 +1,11 @@
 import React from 'react';
 import { RestaurantItem, RestaurantSearchQuery } from '../models/interfaces';
 import { Text, makeStyles, Title2, Caption1, Card, CardHeader, CardPreview, tokens } from '@fluentui/react-components';
-import { useQueryRestaurantsByItemQuery } from '../store/reducers/zomautoApi';
+import { useGetResultByIdQuery, useQueryRestaurantsByItemQuery } from '../store/reducers/zomautoApi';
 
 interface RestaurantDisplayProps {
     query: RestaurantSearchQuery;
+    onComplete?: () => void;
 }
 
 const flex = {
@@ -60,12 +61,20 @@ const useStyles = makeStyles({
 
 export default function RestaurantDisplay(props: RestaurantDisplayProps) {
     const styles = useStyles();
-    const { isLoading, isError, data: restaurants } = useQueryRestaurantsByItemQuery(props.query);
+    const [completed, setCompleted] = React.useState(false);
+    const { data: queryRes } = useQueryRestaurantsByItemQuery(props.query);
+    const { isLoading, isError, data: result } = useGetResultByIdQuery(queryRes?.result_id!, { skip: !queryRes || completed, pollingInterval: 10000 });
+
+    const restaurants = result?.data;
+    if (result?.completed && props.onComplete) {
+        props.onComplete();
+        setCompleted(true);
+    }
 
     return (
         <div>
             <h1>Restaurant Display</h1>
-            {isLoading && <p>Loading...</p>}
+            {(isLoading || !completed) && <p>Loading...</p>}
             {isError && <p>Failed to load!</p>}
             <ul className={styles.main}>
                 {restaurants && restaurants.map(({ restaurant, items, offers }) => (
@@ -84,6 +93,7 @@ export default function RestaurantDisplay(props: RestaurantDisplayProps) {
                                                 className={styles.smallRadius}
                                                 src={item.img}
                                                 alt={item.name}
+                                                loading='lazy'
                                             />
                                         </CardPreview>
 

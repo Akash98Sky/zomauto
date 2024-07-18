@@ -1,12 +1,11 @@
 import logging
 from fastapi import Depends, FastAPI, HTTPException
-from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 
 from backend.cache import CacheManager
 from backend.models.query import Query
+from backend.worker import QueryWorker, worker_instance
 from zomato.models.item import Item
 from zomato.models.location import Location
-from zomato.models.restaurant import Restaurant
 from zomato.zomato import Zomato
 from .browser import instance
 
@@ -38,23 +37,23 @@ async def read_items(q: str, zomato: Zomato = Depends(instance), cachemgr: Cache
         raise HTTPException(status_code=400)
     
 @api_routes.post("/query")
-async def query(query: Query, zomato: Zomato = Depends(instance), cachemgr: CacheManager = Depends(lambda: CacheManager("restaurants"))):
-    data = []
-    def func(restaurant: Restaurant):
-        def inner_func():
-            return zomato.get_restaurant_details(restaurant)
-        return inner_func
+async def query(query: Query, worker: QueryWorker = Depends(worker_instance)):
     try:
-        restaurants = [restaurant async for restaurant in zomato.browse_restaurants(query.location, query.item, query.at_least)]
-        for restaurant in restaurants:
-            key = restaurant.href
-            try:
-                details = await cachemgr.cached(key, func(restaurant), expire=28800)    # cache for 8 hours
-                data.append(details)
-            except PlaywrightTimeoutError as e:
-                logging.warning('Restaurant "%s" timed out, Error: %s', restaurant.name, e, exc_info=True)
-
-        return data
+        work = worker.enqueue(query)
+        return { "result_id": work.id, "completed": work.completed }
     except Exception as e:
         logging.error(e, exc_info=True)
         raise HTTPException(status_code=400)
+    
+@api_routes.get("/result")
+async def read_result(id: str, worker: QueryWorker = Depends(worker_instance)):
+    result = worker.check_result(id)
+
+    if result is None:
+        raise HTTPException(status_code=404, detail="Result not found")
+
+    return {
+        "result_id": result.id,
+        "completed": result.completed,
+        "data": result.task.result() if result.completed else result.data
+    }

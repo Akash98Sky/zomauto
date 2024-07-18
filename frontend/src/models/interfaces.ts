@@ -15,6 +15,12 @@ export interface RestaurantSearchQuery {
     at_least?: number;
 }
 
+export interface QueryResult<T> {
+    result_id: string;
+    completed: boolean;
+    data: T;
+}
+
 export interface RestaurantDetail {
     restaurant: Restaurant;
     offers: RestaurantOffer[];

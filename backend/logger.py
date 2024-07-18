@@ -1,6 +1,6 @@
-import logging
+from zomato.logger import getLogger
 
-zomauto_logger = logging.getLogger('zomauto.backend')
+zomauto_logger = getLogger('backend')
 
 def getLogger(name: str):
     child = zomauto_logger.getChild(name)

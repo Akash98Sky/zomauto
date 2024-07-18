@@ -8,12 +8,18 @@ import {
 
 import RestaurantSearch from './components/RestaurantSearch';
 import RestaurantDisplay from './components/RestaurantDisplay';
-import { RestaurantSearchQuery } from './models/interfaces';
+import { ItemSearch, LocationSearch, RestaurantSearchQuery } from './models/interfaces';
 import { Provider } from 'react-redux';
 import { store } from './store';
 
 function App() {
   const [searchQuery, setSearchQuery] = useState<RestaurantSearchQuery | undefined>(undefined);
+  const [searching, setSearching] = useState(false);
+
+  const onSearch = (location: LocationSearch, item: ItemSearch, atLeast: number) => {
+    setSearching(true);
+    setSearchQuery({ location, item, at_least: atLeast });
+  }
 
   return (
     <FluentProvider theme={webLightTheme}>
@@ -22,8 +28,8 @@ function App() {
           <header className="App-header">
             <img src={logo} className="App-logo" alt="logo" />
           </header>
-          <RestaurantSearch onSearch={(location, item) => setSearchQuery({ location, item })} />
-          {searchQuery && <RestaurantDisplay query={searchQuery} />}
+          <RestaurantSearch onSearch={onSearch} disableSearch={searching} />
+          {searchQuery && <RestaurantDisplay query={searchQuery} onComplete={() => setSearching(false)} />}
         </div>
       </Provider>
     </FluentProvider>

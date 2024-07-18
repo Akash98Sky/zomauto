@@ -1,6 +1,6 @@
 // Need to use the React-specific entry point to import createApi
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import type { ItemSearch, LocationSearch, RestaurantDetail, RestaurantSearchQuery } from '../../models/interfaces'
+import type { ItemSearch, LocationSearch, QueryResult, RestaurantDetail, RestaurantSearchQuery } from '../../models/interfaces'
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || ''
 
@@ -15,12 +15,15 @@ export const zomautoApi = createApi({
     getLocationsByName: builder.query<LocationSearch[], string>({
       query: (name) => `locations?q=${name}`,
     }),
-    queryRestaurantsByItem: builder.query<RestaurantDetail[], RestaurantSearchQuery>({
+    queryRestaurantsByItem: builder.query<QueryResult<RestaurantDetail[]>, RestaurantSearchQuery>({
       query: (search) => ({ method: 'POST', url: 'query', body: search }),
     }),
-  }),
+    getResultById: builder.query<QueryResult<RestaurantDetail[]>, string>({
+      query: (id) => ({ method: 'GET', url: `result?id=${id}` }),
+    }),
+  })
 })
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useLazyGetItemsByNameQuery, useLazyGetLocationsByNameQuery, useQueryRestaurantsByItemQuery, useLazyQueryRestaurantsByItemQuery } = zomautoApi
+export const { useLazyGetItemsByNameQuery, useLazyGetLocationsByNameQuery, useQueryRestaurantsByItemQuery, useLazyQueryRestaurantsByItemQuery, useGetResultByIdQuery } = zomautoApi
