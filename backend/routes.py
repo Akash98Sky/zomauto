@@ -1,5 +1,6 @@
 import logging
 from fastapi import Depends, FastAPI, HTTPException
+from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 
 from backend.cache import CacheManager
 from backend.models.query import Query
@@ -50,7 +51,7 @@ async def query(query: Query, zomato: Zomato = Depends(instance), cachemgr: Cach
             try:
                 details = await cachemgr.cached(key, func(restaurant), expire=28800)    # cache for 8 hours
                 data.append(details)
-            except TimeoutError as e:
+            except PlaywrightTimeoutError as e:
                 logging.warning('Restaurant "%s" timed out, Error: %s', restaurant.name, e, exc_info=True)
 
         return data

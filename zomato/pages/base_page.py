@@ -1,5 +1,4 @@
 import asyncio
-from typing import Awaitable
 from playwright.async_api import Browser, BrowserContext
 
 class BasePage:
@@ -8,12 +7,15 @@ class BasePage:
         self._page_url = page_url
 
     async def __aenter__(self):
-        self._page = await self._browser.new_page()
-        await self._page.goto(self._page_url)
-        return self
+        try:
+            self._page = await self._browser.new_page()
+            await self._page.goto(self._page_url)
+        finally:
+            return self
     
     async def __aexit__(self, exc_type, exc, traceback):
-        await self._page.close()
+        if self._page is not None:
+            await self._page.close()
 
     @property
     def page(self):
