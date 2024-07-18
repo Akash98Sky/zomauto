@@ -2,10 +2,12 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import type { ItemSearch, LocationSearch, RestaurantDetail, RestaurantSearchQuery } from '../../models/interfaces'
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || ''
+
 // Define a service using a base URL and expected endpoints
 export const zomautoApi = createApi({
   reducerPath: 'zomautoApi',
-  baseQuery: fetchBaseQuery({ baseUrl: process.env.REACT_APP_BACKEND_URL + '/api/' }),
+  baseQuery: fetchBaseQuery({ baseUrl: BACKEND_URL + '/api/' }),
   endpoints: (builder) => ({
     getItemsByName: builder.query<ItemSearch[], string>({
       query: (name) => `items?q=${name}`,
