@@ -1,12 +1,14 @@
-import React from 'react';
-import { RestaurantItem, RestaurantSearchQuery } from '../models/interfaces';
+import React, { useEffect } from 'react';
+import { ItemSearch, LocationSearch, RestaurantItem } from '../../models/interfaces';
 import { Text, makeStyles, Title2, Caption1, Card, CardHeader, CardPreview, tokens } from '@fluentui/react-components';
-import { useGetResultByIdQuery, useQueryRestaurantsByItemQuery } from '../store/reducers/zomautoApi';
+import { useGetResultByIdQuery, useLazyQueryRestaurantsByItemQuery, useQueryRestaurantsByItemQuery } from '../../store/reducers/zomautoApi';
+import RestaurantSearch from './RestaurantSearch';
 
-interface RestaurantDisplayProps {
-    query: RestaurantSearchQuery;
+interface RestaurantSearchDisplayProps {
     onComplete?: () => void;
 }
+
+type RestaurantSearchDisplayState = 'initial' | 'search' | 'search_initiated' | 'waiting' | 'completed' | 'error';
 
 const flex = {
     gap: "16px",
@@ -59,23 +61,42 @@ const useStyles = makeStyles({
     },
 });
 
-export default function RestaurantDisplay(props: RestaurantDisplayProps) {
+export default function RestaurantSearchDisplay(props: RestaurantSearchDisplayProps) {
     const styles = useStyles();
-    const [completed, setCompleted] = React.useState(false);
-    const { data: queryRes } = useQueryRestaurantsByItemQuery(props.query);
-    const { isLoading, isError, data: result } = useGetResultByIdQuery(queryRes?.result_id!, { skip: !queryRes || completed, pollingInterval: 10000 });
+    const [state, setState] = React.useState<RestaurantSearchDisplayState>('initial');
+    const [queryRestaurantById, searchQueryResult] = useLazyQueryRestaurantsByItemQuery();
+    const { isFetching, isError, isSuccess, data: result } = useGetResultByIdQuery(searchQueryResult?.currentData?.result_id!, { skip: state !== 'search_initiated' && state !== 'waiting', pollingInterval: 10000 });
+
+    useEffect(() => {
+        if (searchQueryResult.isSuccess) {
+            setState('search_initiated');
+        } else if (searchQueryResult.isError) {
+            setState('error');
+        }
+    }, [searchQueryResult.isSuccess, searchQueryResult.isFetching]);
+
+    useEffect(() => {
+        if (isFetching) {
+            setState('waiting');
+        } else if (isError) {
+            setState('error');
+        } else if (isSuccess && result?.completed) {
+            setState('completed');
+        }
+    }, [isFetching, isError, isSuccess]);
 
     const restaurants = result?.data;
-    if (result?.completed && props.onComplete) {
-        props.onComplete();
-        setCompleted(true);
+    const onSearch = (location: LocationSearch, item: ItemSearch, atLeast: number) => {
+        setState('search');
+        queryRestaurantById({ location, item, at_least: atLeast });
     }
 
     return (
         <div>
+            <RestaurantSearch onSearch={onSearch} disableSearch={state === 'search' || state === 'search_initiated' || state === 'waiting'} />
             <h1>Restaurant Display</h1>
-            {(isLoading || !completed) && <p>Loading...</p>}
-            {isError && <p>Failed to load!</p>}
+            {state === 'waiting' && <p>Loading...</p>}
+            {state === 'error' && <p>Failed to load!</p>}
             <ul className={styles.main}>
                 {restaurants && restaurants.map(({ restaurant, items, offers }) => (
                     <li key={restaurant.name}>

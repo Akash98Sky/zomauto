@@ -1,10 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Input, makeStyles } from "@fluentui/react-components";
 
 import { SearchItems } from "./SearchItem";
 import { SearchLocations } from "./SearchLocations";
-import { ItemSearch, LocationSearch } from '../models/interfaces';
-import { useLazyQueryRestaurantsByItemQuery } from '../store/reducers/zomautoApi';
+import { ItemSearch, LocationSearch } from '../../models/interfaces';
 
 const useStyle = makeStyles({
     searchControl: {
