@@ -1,10 +1,11 @@
 import asyncio
 from playwright.async_api import Browser, BrowserContext
+from urllib.parse import unquote_plus
 
 class BasePage:
     def __init__(self, browser: Browser | BrowserContext, page_url: str = "https://www.zomato.com/bangalore") -> None:
         self._browser = browser
-        self._page_url = page_url
+        self._page_url = unquote_plus(page_url)
 
     async def __aenter__(self):
         try:
