@@ -57,8 +57,9 @@ class RestaurantDetailsElement(BaseElement):
             try:
                 items_locator = section.locator(f"//div[2]/div/div/div[./div[2]/div[1]/div/h4 and contains(translate(., '{name_contains.upper()}', '{name_contains.lower()}'), '{name_contains.lower()}')]")
                 if await items_locator.count() > 0:
-                    await items_locator.last.scroll_into_view_if_needed()
-                    await items_locator.last.wait_for(state="visible", timeout=1000)
+                    for item in await items_locator.all():
+                        await item.scroll_into_view_if_needed()
+                        await item.wait_for(state="visible", timeout=1000)
             except:
                 # this is just a workaround to load all the item images
                 pass

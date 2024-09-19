@@ -57,3 +57,18 @@ export interface Restaurant {
     href: string;
     offers_available: boolean;
 }
+
+export interface SearchFilters {
+    restaurant: RestaurantFilter[];
+    item: ItemFilter[];
+}
+
+export interface Filter<T> {
+    field: keyof T;
+    operator: 'eq' | 'gt' | 'lt' | 'contains';
+    value: string | number;
+}
+
+export type RestaurantFilter = Filter<Restaurant>;
+
+export type ItemFilter = Filter<RestaurantItem>;
