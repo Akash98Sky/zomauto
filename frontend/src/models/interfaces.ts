@@ -63,9 +63,11 @@ export interface SearchFilters {
     item: ItemFilter[];
 }
 
+export type FilterOperator = 'eq' | 'gt' | 'lt' | 'contains';
+
 export interface Filter<T> {
     field: keyof T;
-    operator: 'eq' | 'gt' | 'lt' | 'contains';
+    operator: FilterOperator;
     value: string | number;
 }
 

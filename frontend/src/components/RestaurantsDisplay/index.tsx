@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import { Caption1, Card, CardHeader, CardPreview, Title2, Text, tokens, makeStyles } from "@fluentui/react-components";
-import { RestaurantDetail, RestaurantFilter, RestaurantItem, SearchFilters } from "../../models/interfaces";
+
+import { RestaurantItem, SearchFilters } from "../../models/interfaces";
 import RestaurantsFilter from "./RestaurantsFilter";
+import { useAppDispatch, useAppSelector } from "../../store";
+import { updateFilters } from "../../store/reducers/restaurants";
 
 export interface RestaurantsDisplayProps {
-    restaurants: RestaurantDetail[]
 }
 
 const flex = {
@@ -60,31 +62,12 @@ const useStyles = makeStyles({
 
 export default function RestaurantsDisplay(props: RestaurantsDisplayProps) {
     const styles = useStyles();
-    const [filters, setFilters] = useState<SearchFilters>({restaurant: [], item: []});
+    const dispatch = useAppDispatch();
+    const { restaurants, filters } = useAppSelector(state => ({ restaurants: state.restaurants.filteredRestaurants, filters: state.restaurants.filters }));
 
-    const restaurants = props.restaurants.filter(r => filters.restaurant.every(f => {
-        if (f.operator === 'eq') {
-            return r.restaurant[f.field] === f.value
-        } else if (f.operator === 'gt') {
-            return r.restaurant[f.field] > f.value
-        } else if (f.operator === 'lt') {
-            return r.restaurant[f.field] < f.value
-        } else if (f.operator === 'contains') {
-            r.restaurant[f.field].toString().toLowerCase().includes(f.value.toString().toLowerCase())
-        }
-    }));
-    const filterItems = (items: RestaurantItem[]) => {
-        return items.filter(i => filters.item.every(f => {
-            if (f.operator === 'eq') {
-                return i[f.field] === f.value;
-            } else if (f.operator === 'gt') {
-                return i[f.field] && i[f.field]! > f.value;
-            } else if (f.operator === 'lt') {
-                return i[f.field] && i[f.field]! < f.value;
-            } else if (f.operator === 'contains') {
-                return i[f.field]?.toString().toLowerCase().includes(f.value.toString().toLowerCase());
-            }
-        }))
+    const setFilters = (updatedfilters: SearchFilters) => {
+        console.log(updatedfilters);
+        dispatch(updateFilters(updatedfilters));
     }
 
     return (
@@ -98,7 +81,7 @@ export default function RestaurantsDisplay(props: RestaurantsDisplayProps) {
                             <p>{restaurant.type}</p>
 
                             <div className={styles.row}>
-                                {items.reduce<RestaurantItem[]>((acc, item) => [...acc, ...filterItems(item.items)] as RestaurantItem[], []).map((item, idx) => (
+                                {items.reduce<RestaurantItem[]>((acc, item) => [...acc, ...item.items] as RestaurantItem[], []).map((item, idx) => (
                                     <Card key={idx} className={styles.card}>
                                         <CardPreview
                                             className={styles.grayBackground}
@@ -114,7 +97,9 @@ export default function RestaurantsDisplay(props: RestaurantsDisplayProps) {
                                         <CardHeader
                                             header={<Text weight="semibold">{item.name} @ ₹{item.discounted_price}</Text>}
                                             description={
-                                                <Caption1 className={styles.caption} strikethrough>₹{item.price}</Caption1>
+                                                item.discounted_price != item.price ?
+                                                    <Caption1 className={styles.caption} strikethrough>₹{item.price}</Caption1> :
+                                                    null
                                             }
                                         />
                                     </Card>

@@ -51,6 +51,8 @@ export default function RestaurantsFilter(props: RestaurantFilterProps) {
         }
     }, [tab, props.filters, props.onFilterChange]);
     const mutations = filterMutations(tab);
+    const restaurantFilters = props.filters['restaurant'];
+    const itemFilters = props.filters['item'];
 
     return (
         <div className={styles.tab_root}>
@@ -60,9 +62,15 @@ export default function RestaurantsFilter(props: RestaurantFilterProps) {
             </TabList>
 
             <div className={styles.filter_list}>
-                {props.filters[tab].map((filter, index) => (
+                {tab === 'restaurant' && restaurantFilters.map((filter, index) => (
                     <div key={index}>
-                        <SingleFilter filter={filter} onChange={filter => mutations.update(filter, index)} onDelete={() => mutations.remove(index)} />
+                        <SingleFilter filter={filter} type='restaurant' onChange={f => mutations.update(f, index)} onDelete={() => mutations.remove(index)} />
+                    </div>
+                ))}
+
+                {tab === 'item' && itemFilters.map((filter, index) => (
+                    <div key={index}>
+                        <SingleFilter filter={filter} type='item' onChange={f => mutations.update(f, index)} onDelete={() => mutations.remove(index)} />
                     </div>
                 ))}
             </div>

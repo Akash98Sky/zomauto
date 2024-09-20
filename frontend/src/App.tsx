@@ -6,9 +6,10 @@ import {
   webLightTheme
 } from "@fluentui/react-components";
 
-import RestaurantSearchDisplay from './components/RestaurantSearchDisplay';
 import { Provider } from 'react-redux';
 import { store } from './store';
+import RestaurantSearchDisplay from './components/RestaurantSearchDisplay';
+import RestaurantsDisplay from './components/RestaurantsDisplay';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           </header>
           
           <RestaurantSearchDisplay />
+          <RestaurantsDisplay />
         </div>
       </Provider>
     </FluentProvider>
