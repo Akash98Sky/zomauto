@@ -1,6 +1,6 @@
 # Zomauto - Automation Project
 
-This project automates interactions with the Zomato website, utilizing Selenium for web scraping and automation. It is designed to extract information about restaurants, such as menu items, prices, and offers, and perform specific automated tasks based on that data.
+This project automates interactions with the Zomato website, utilizing Playwright for web scraping and automation. It is designed to extract information about restaurants, such as menu items, prices, and offers, and perform specific automated tasks based on that data.
 
 ## Features
 
@@ -8,15 +8,20 @@ This project automates interactions with the Zomato website, utilizing Selenium 
 - **Data Extraction**: Extracts data such as restaurant offers, menu items, and their prices.
 - **Price Calculation**: Calculates discounted prices for menu items based on available offers.
 
+## Screenshots
+
+![Location Search](demo/locations.png)
+![Item Search](demo/items.png)
+![Search Result](demo/restaurants.png)
+
 ## Setup
 
-To run this project, you need Python installed on your system. Additionally, the project requires Selenium and its necessary WebDriver for the browser you intend to use (e.g., Edge).
+To run this project, you need Python installed on your system. Additionally, the project requires Playwright and its necessary WebDriver for the browser you intend to use (e.g., Edge).
 
 ### Dependencies
 
 - Python 3.x
-- Selenium
-- WebDriver for the chosen browser (e.g., Edge WebDriver)
+- Playwright
 
 ### Installation
 
