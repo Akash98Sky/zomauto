@@ -24,6 +24,7 @@ const useStyles = makeStyles({
 
     row: {
         ...flex,
+        padding: "5px",
         width: "95vw",
 
         overflowX: "scroll",
@@ -45,7 +46,10 @@ const useStyles = makeStyles({
         color: tokens.colorNeutralForeground3,
     },
 
-    smallRadius: { borderRadius: tokens.borderRadiusSmall },
+    imgPreview: {
+        borderRadius: tokens.borderRadiusSmall,
+        maxHeight: "300px",
+    },
 
     grayBackground: {
         backgroundColor: tokens.colorNeutralBackground3,
@@ -87,8 +91,8 @@ export default function RestaurantsDisplay(props: RestaurantsDisplayProps) {
                                             className={styles.grayBackground}
                                         >
                                             <img
-                                                className={styles.smallRadius}
-                                                src={item.img}
+                                                className={styles.imgPreview}
+                                                src={item.img || 'images/placeholder.webp'}
                                                 alt={item.name}
                                                 loading='lazy'
                                             />

@@ -21,7 +21,7 @@ const useStyles = makeStyles({
     filter_list: {
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
+        alignItems: 'stretch',
         justifyContent: 'center',
         gap: '5px',
     },

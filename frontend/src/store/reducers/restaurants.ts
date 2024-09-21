@@ -47,7 +47,7 @@ export const restaurantsSlice = createSlice({
           name: cat.name,
           items: cat.items.filter(item => applyFilters(item, state.filters.item))
         }))
-      }));
+      })).filter(r => r.items.some(cat => cat.items.length > 0));
     },
     updateFilters: (state, action: PayloadAction<SearchFilters>) => {
       state.filters = action.payload;
@@ -58,7 +58,7 @@ export const restaurantsSlice = createSlice({
           name: cat.name,
           items: cat.items.filter(item => applyFilters(item, state.filters.item))
         }))
-      }));
+      })).filter(r => r.items.some(cat => cat.items.length > 0));
     }
   },
 })
