@@ -4,7 +4,7 @@ import { ItemSearch, LocationSearch } from '../../models/interfaces';
 import { useGetResultByIdQuery, useLazyQueryRestaurantsByItemQuery } from '../../store/reducers/zomautoApi';
 import RestaurantSearch from './RestaurantSearch';
 import { useAppDispatch } from '../../store';
-import { updateRestaurants } from '../../store/reducers/restaurants';
+import { setQuery, updateRestaurants } from '../../store/reducers/restaurants';
 import { ProgressBar } from '@fluentui/react-components';
 
 interface RestaurantSearchDisplayProps {
@@ -47,6 +47,7 @@ export default function RestaurantSearchDisplay(props: RestaurantSearchDisplayPr
     const onSearch = (location: LocationSearch, item: ItemSearch, atLeast: number) => {
         setState('search');
         queryRestaurantById({ location, item, at_least: atLeast });
+        dispatch(setQuery({ location, item, at_least: atLeast }));
     }
 
     return (

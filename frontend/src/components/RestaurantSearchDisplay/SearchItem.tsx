@@ -14,6 +14,7 @@ import { ItemSearch } from "../../models/interfaces";
 import { useLazyGetItemsByNameQuery } from "../../store/reducers/zomautoApi";
 
 interface SearchItemProps {
+    selected?: ItemSearch | undefined;
     onChange?: (item: ItemSearch | undefined) => void;
 }
 
@@ -54,6 +55,20 @@ export function SearchItems(props: SearchItemProps) {
                             value={itemIdx.toString()}
                         >
                             {items![itemIdx].name}
+                        </Tag>
+                    </TagPickerGroup>
+                )}
+                {itemIdx === undefined && props.selected && (
+                    <TagPickerGroup>
+                        <Tag
+                            key={props.selected.name}
+                            shape="rounded"
+                            media={
+                                <Avatar aria-hidden name={props.selected.name} color="colorful" />
+                            }
+                            value={props.selected.name}
+                        >
+                            {props.selected.name}
                         </Tag>
                     </TagPickerGroup>
                 )}

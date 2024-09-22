@@ -1,5 +1,5 @@
 import React from "react";
-import { Caption1, Card, CardHeader, CardPreview, Title2, Text, tokens, makeStyles } from "@fluentui/react-components";
+import { Caption1, Card, CardHeader, CardPreview, Title2, Text, tokens, makeStyles, Badge } from "@fluentui/react-components";
 
 import { RestaurantItem, SearchFilters } from "../../models/interfaces";
 import RestaurantsFilter from "./RestaurantsFilter";
@@ -42,6 +42,14 @@ const useStyles = makeStyles({
         textAlign: "left"
     },
 
+    restaurantTitle: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+
+        gap: "10px",
+    },
+
     caption: {
         color: tokens.colorNeutralForeground3,
     },
@@ -51,8 +59,16 @@ const useStyles = makeStyles({
         maxHeight: "300px",
     },
 
-    grayBackground: {
+    cardPreview: {
         backgroundColor: tokens.colorNeutralBackground3,
+        position: "relative",
+    },
+
+    itemRating: {
+        position: "absolute",
+        top: "5px",
+        left: "5px",
+        zIndex: 1,
     },
 
     logoBadge: {
@@ -81,14 +97,20 @@ export default function RestaurantsDisplay(props: RestaurantsDisplayProps) {
                 {restaurants.map(({ restaurant, items, offers }) => (
                     <li key={restaurant.name}>
                         <section className={styles.section}>
-                            <Title2>{restaurant.name}</Title2>
+                            <Title2 className={styles.restaurantTitle}>
+                                {restaurant.name}
+                                {restaurant.rating &&
+                                    <Badge size="large" appearance="filled" color="success">
+                                        <strong>{restaurant.rating} ✰</strong>
+                                    </Badge>}
+                            </Title2>
                             <p>{restaurant.type}</p>
 
                             <div className={styles.row}>
                                 {items.reduce<RestaurantItem[]>((acc, item) => [...acc, ...item.items] as RestaurantItem[], []).map((item, idx) => (
                                     <Card key={idx} className={styles.card}>
                                         <CardPreview
-                                            className={styles.grayBackground}
+                                            className={styles.cardPreview}
                                         >
                                             <img
                                                 className={styles.imgPreview}
@@ -96,6 +118,13 @@ export default function RestaurantsDisplay(props: RestaurantsDisplayProps) {
                                                 alt={item.name}
                                                 loading='lazy'
                                             />
+
+                                            {item.rating ?
+                                                <div className={styles.itemRating}>
+                                                    <Badge appearance="filled" color="success">
+                                                        {item.rating} ✰
+                                                    </Badge>
+                                                </div> : null}
                                         </CardPreview>
 
                                         <CardHeader

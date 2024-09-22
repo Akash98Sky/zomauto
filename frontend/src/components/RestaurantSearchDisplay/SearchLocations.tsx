@@ -14,6 +14,7 @@ import { LocationSearch } from "../../models/interfaces";
 import { useLazyGetLocationsByNameQuery } from "../../store/reducers/zomautoApi";
 
 interface SearchLocationProps {
+    selected?: LocationSearch | undefined;
     onChange?: (location: LocationSearch | undefined) => void;
 }
 
@@ -54,6 +55,20 @@ export function SearchLocations(props: SearchLocationProps) {
                             value={locIdx.toString()}
                         >
                             {locations![locIdx].line1}
+                        </Tag>
+                    </TagPickerGroup>
+                )}
+                {locIdx === undefined && props.selected && (
+                    <TagPickerGroup>
+                        <Tag
+                            key={props.selected.line1}
+                            shape="rounded"
+                            media={
+                                <Avatar aria-hidden name={props.selected.line1} color="colorful" />
+                            }
+                            value={props.selected.line1}
+                        >
+                            {props.selected.line1}
                         </Tag>
                     </TagPickerGroup>
                 )}

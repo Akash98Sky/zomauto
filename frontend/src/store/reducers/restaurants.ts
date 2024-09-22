@@ -1,22 +1,29 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { Filter, Restaurant, RestaurantDetail, RestaurantItem, SearchFilters } from '../../models/interfaces';
+import { Filter, Restaurant, RestaurantDetail, RestaurantItem, RestaurantSearchQuery, SearchFilters } from '../../models/interfaces';
 
 // Define a type for the slice state
 interface RestautantsState {
+  query?: RestaurantSearchQuery;
   restaurants: RestaurantDetail[];
   filters: SearchFilters;
   filteredRestaurants: RestaurantDetail[];
 }
 
+// Load values from session storage
+const previousQuery = sessionStorage.getItem('query')
+const previousRestaurantsRaw = sessionStorage.getItem('restaurants')
+const previousRestaurants = previousRestaurantsRaw ? JSON.parse(previousRestaurantsRaw) : undefined
+
 // Define the initial state using that type
 const initialState: RestautantsState = {
-  restaurants: [],
+  query: previousQuery ? JSON.parse(previousQuery!) : undefined,
+  restaurants: previousRestaurants,
   filters: { restaurant: [], item: [] },
-  filteredRestaurants: [],
+  filteredRestaurants: previousRestaurants
 }
 
-const applyFilters = <T = Restaurant| RestaurantItem>(item: T, filters: Filter<T>[]) => {
+const applyFilters = <T = Restaurant | RestaurantItem>(item: T, filters: Filter<T>[]) => {
   if (!filters) {
     return true
   }
@@ -38,6 +45,13 @@ export const restaurantsSlice = createSlice({
   // `createSlice` will infer the state type from the `initialState` argument
   initialState,
   reducers: {
+    setQuery: (state, action: PayloadAction<RestaurantSearchQuery>) => {
+      state.query = action.payload;
+
+      sessionStorage.setItem('query', JSON.stringify(action.payload));
+      sessionStorage.removeItem('restaurants');
+      console.debug('set query', action.payload);
+    },
     updateRestaurants: (state, action: PayloadAction<RestaurantDetail[]>) => {
       state.restaurants = action.payload;
       state.filteredRestaurants = action.payload.filter(r => applyFilters(r.restaurant, state.filters.restaurant)).map(r => ({
@@ -48,6 +62,8 @@ export const restaurantsSlice = createSlice({
           items: cat.items.filter(item => applyFilters(item, state.filters.item))
         }))
       })).filter(r => r.items.some(cat => cat.items.length > 0));
+
+      sessionStorage.setItem('restaurants', JSON.stringify(action.payload));
     },
     updateFilters: (state, action: PayloadAction<SearchFilters>) => {
       state.filters = action.payload;
@@ -63,6 +79,6 @@ export const restaurantsSlice = createSlice({
   },
 })
 
-export const { updateRestaurants, updateFilters } = restaurantsSlice.actions;
+export const { setQuery, updateRestaurants, updateFilters } = restaurantsSlice.actions;
 
 export default restaurantsSlice.reducer;

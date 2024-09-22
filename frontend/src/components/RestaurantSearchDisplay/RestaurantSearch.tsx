@@ -4,6 +4,7 @@ import { Button, Input, makeStyles } from "@fluentui/react-components";
 import { SearchItems } from "./SearchItem";
 import { SearchLocations } from "./SearchLocations";
 import { ItemSearch, LocationSearch } from '../../models/interfaces';
+import { useAppSelector } from '../../store';
 
 const useStyle = makeStyles({
     searchControl: {
@@ -38,8 +39,9 @@ interface RestaurantSearchProps {
 }
 
 export default function RestaurantSearch(props: RestaurantSearchProps) {
-    const [searchData, setSearchData] = useState<{ location: LocationSearch | undefined, item: ItemSearch | undefined }>({ location: undefined, item: undefined });
-    const [atLeast, setAtLeast] = useState(10);
+    const initialQuery = useAppSelector(state => state.restaurants.query);
+    const [searchData, setSearchData] = useState<{ location: LocationSearch | undefined, item: ItemSearch | undefined }>({ location: initialQuery?.location, item: initialQuery?.item });
+    const [atLeast, setAtLeast] = useState(initialQuery?.at_least || 10);
 
     const [width, setWidth] = useState(window.innerWidth);
     const style = useStyle();
@@ -57,8 +59,8 @@ export default function RestaurantSearch(props: RestaurantSearchProps) {
         <div>
             <h1>Restaurant Search</h1>
             <div className={isMd ? styleMd.searchControl : style.searchControl}>
-                <SearchLocations onChange={(location) => { setSearchData(data => ({ ...data, location })); console.log('location', location) }} />
-                <SearchItems onChange={(item) => { setSearchData(data => ({ ...data, item })); console.log('item', item) }} />
+                <SearchLocations selected={searchData.location} onChange={(location) => { setSearchData(data => ({ ...data, location })); console.log('location', location) }} />
+                <SearchItems selected={searchData.item} onChange={(item) => { setSearchData(data => ({ ...data, item })); console.log('item', item) }} />
                 <div className={style.row}>
                     <Input placeholder="No of restaurants to search" type='number' min={1} max={50} value={atLeast.toString()} onChange={(e) => setAtLeast(parseInt(e.target.value))} />
                     <Button
