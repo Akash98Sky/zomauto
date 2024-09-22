@@ -13,7 +13,7 @@ interface RestautantsState {
 // Load values from session storage
 const previousQuery = sessionStorage.getItem('query')
 const previousRestaurantsRaw = sessionStorage.getItem('restaurants')
-const previousRestaurants = previousRestaurantsRaw ? JSON.parse(previousRestaurantsRaw) : undefined
+const previousRestaurants = previousRestaurantsRaw ? JSON.parse(previousRestaurantsRaw) : []
 
 // Define the initial state using that type
 const initialState: RestautantsState = {
